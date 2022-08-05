@@ -22,6 +22,15 @@ GameOfLifeWorld class >> withHeight: aHeight withWidth: aWidth [
 	
 ]
 
+{ #category : #creation }
+GameOfLifeWorld >> addPattern: aPattern [
+			
+	(aPattern positions) do: [ :position | world at: position put: true ].
+	
+
+
+]
+
 { #category : #private }
 GameOfLifeWorld >> assertValidPoint: aPoint [
 
