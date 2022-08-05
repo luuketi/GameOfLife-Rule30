@@ -69,6 +69,9 @@ GameOfLifeWorld >> createWorld [
 	"scope: class-variables  &  instance-variables"	
 			
 	world := Dictionary new.
+	1 to: width do:
+		[ :w | 1 to: height do:
+			[ :h | world at: w@h put: false ] ]
 ]
 
 { #category : #accessing }
@@ -83,7 +86,10 @@ GameOfLifeWorld >> isAlive: aPoint [
 { #category : #execution }
 GameOfLifeWorld >> moveToNextGeneration [
 			
-	world keysDo: [ :k | self updateCell: k ].
+	| newWorld |
+	newWorld := Dictionary new.
+	world keysDo: [ :k | self updateCell: k in: newWorld ].
+	world := newWorld.
 ]
 
 { #category : #private }
@@ -103,31 +109,33 @@ GameOfLifeWorld >> setWidth: aWidth [
 ]
 
 { #category : #private }
-GameOfLifeWorld >> updateCell: aCell [
+GameOfLifeWorld >> updateCell: aCell in: aNewWorld [ 
 
 	| isAlive |
 	
 	isAlive := world at: aCell .
-	isAlive ifTrue: [ self updateLiveCell: aCell ]
-			  ifFalse:[ self updateDeadCell: aCell ]
+	isAlive ifTrue: [ self updateLiveCell: aCell in: aNewWorld ]
+			  ifFalse:[ self updateDeadCell: aCell in: aNewWorld ]
 ]
 
 { #category : #private }
-GameOfLifeWorld >> updateDeadCell: aCell [
+GameOfLifeWorld >> updateDeadCell: aCell in: aNewWorld [ 
 
 	| liveNeighbours |
 	
 	liveNeighbours := self countLiveNeighbours: aCell.
 	(liveNeighbours = 3)
-		ifTrue: [ world at: aCell put: true ]
+		ifTrue: [ aNewWorld at: aCell put: true ]
+		ifFalse: [ aNewWorld at: aCell put: false ]
 ]
 
 { #category : #private }
-GameOfLifeWorld >> updateLiveCell: aCell [
+GameOfLifeWorld >> updateLiveCell: aCell in: aNewWorld [ 
 
 	| liveNeighbours |
 	
 	liveNeighbours := self countLiveNeighbours: aCell.
 	(liveNeighbours < 2 | (liveNeighbours > 3))
-		ifTrue: [ world at: aCell put: false ]
+		ifTrue: [ aNewWorld at: aCell put: false ]
+		ifFalse: [ aNewWorld at: aCell put: true ]		
 ]
