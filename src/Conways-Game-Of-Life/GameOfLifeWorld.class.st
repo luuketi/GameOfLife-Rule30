@@ -20,6 +20,7 @@ GameOfLifeWorld class >> withHeight: aHeight withWidth: aWidth [
 	world setHeight: aHeight. 
 	world setWidth: aWidth.
 	world createWorld.
+	world createWindow.
 	^world
 	
 ]
@@ -27,7 +28,8 @@ GameOfLifeWorld class >> withHeight: aHeight withWidth: aWidth [
 { #category : #creation }
 GameOfLifeWorld >> addPattern: aPattern [
 			
-	(aPattern positions) do: [ :position | world at: position put: GameOfLifeAliveCell new. ].
+	(aPattern positions) do: [ :position | (world at: position) awake. ].
+	^ self.
 	
 
 
@@ -65,6 +67,13 @@ GameOfLifeWorld >> countLiveNeighbours: aCell [
 ]
 
 { #category : #private }
+GameOfLifeWorld >> createWindow [
+			
+	window := GameOfLifeWindow withHeight: height  withWidth: width.
+	self populateWindow.
+]
+
+{ #category : #private }
 GameOfLifeWorld >> createWorld [
 	"comment stating purpose of instance-side method"
 	"scope: class-variables  &  instance-variables"	
@@ -85,11 +94,33 @@ GameOfLifeWorld >> isAlive: aPoint [
 
 { #category : #execution }
 GameOfLifeWorld >> moveToNextGeneration [
+
+	self updateNeighbours.
+	world keysDo: [ :k | self updateCell: k ].
+	self showWindow
+]
+
+{ #category : #creation }
+GameOfLifeWorld >> play: aNumberOfSteps [
 			
-	| newWorld |
-	newWorld := Dictionary new.
-	world keysDo: [ :k | self updateCell: k in: newWorld ].
-	world := newWorld.
+	
+[1 to: aNumberOfSteps do: [  :a|
+		self moveToNextGeneration. (Delay forMilliseconds: 50) wait.
+]] fork.
+
+]
+
+{ #category : #private }
+GameOfLifeWorld >> populateWindow [ 
+
+	| rowMorph |			
+	
+	1 to: height  do: [ :row | 
+		rowMorph := Morph new layoutPolicy: RowLayout new; vResizing: #shrinkWrap; color: Color transparent .
+		1 to: width do: [ :col | rowMorph addMorph: (world at: (col@row)) ].
+		window addRowMorph: rowMorph.
+		 ].
+	
 ]
 
 { #category : #private }
@@ -106,6 +137,12 @@ GameOfLifeWorld >> setWidth: aWidth [
 	"scope: class-variables  &  instance-variables"	
 			
 	width := aWidth 
+]
+
+{ #category : #execution }
+GameOfLifeWorld >> showWindow [
+
+	window show
 ]
 
 { #category : #private }
