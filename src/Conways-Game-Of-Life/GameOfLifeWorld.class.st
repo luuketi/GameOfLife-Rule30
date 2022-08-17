@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'height',
 		'width',
-		'world'
+		'world',
+		'window'
 	],
 	#category : #'Conways-Game-Of-Life'
 }
@@ -25,7 +26,7 @@ GameOfLifeWorld class >> withHeight: aHeight withWidth: aWidth [
 { #category : #creation }
 GameOfLifeWorld >> addPattern: aPattern [
 			
-	(aPattern positions) do: [ :position | world at: position put: true ].
+	(aPattern positions) do: [ :position | world at: position put: GameOfLifeAliveCell new. ].
 	
 
 
@@ -45,21 +46,20 @@ GameOfLifeWorld >> assertValidPoint: aPoint [
 { #category : #private }
 GameOfLifeWorld >> countLiveNeighbours: aCell [
 
-	| count x y |
+	| count x y points validPoints |
 	
 	count := 0.
 	x := aCell x.
 	y := aCell y.
-	(world at: ((x-1)@(y-1)) ifAbsent: [false]) ifTrue: [count := count + 1].		
-	(world at: ((x-1)@y) ifAbsent: [false]) 	 ifTrue: [count := count + 1].
-	(world at: ((x-1)@(y+1)) ifAbsent: [false]) ifTrue: [count := count + 1].
-	(world at: (x@(y-1)) ifAbsent: [false]) 	 ifTrue: [count := count + 1].
-	(world at: (x@(y+1)) ifAbsent: [false]) 	 ifTrue: [count := count + 1].	
-	(world at: ((x+1)@(y-1)) ifAbsent: [false]) ifTrue: [count := count + 1].		
-	(world at: ((x+1)@y) ifAbsent: [false])     ifTrue: [count := count + 1].
-	(world at: ((x+1)@(y+1)) ifAbsent: [false]) ifTrue: [count := count + 1].
 	
-	^ count		
+	points := { (x-1)@(y-1).	(x-1)@y.	(x-1)@(y+1).	 x@(y-1).	 x@(y+1). (x+1)@(y-1). (x+1)@y. (x+1)@(y+1). }.
+	
+	validPoints := points select: [ :p | (p > (0@0)) & (p < (height@width)). ].
+	validPoints do: [ :p | (self isAlive: p) ifTrue: [count := count + 1] ].
+	^ count
+	
+	
+	
 
 ]
 
@@ -71,16 +71,14 @@ GameOfLifeWorld >> createWorld [
 	world := Dictionary new.
 	1 to: width do:
 		[ :w | 1 to: height do:
-			[ :h | world at: w@h put: false ] ]
+			[ :h | world at: w@h put: GameOfLifeDeadCell new. ] ]
 ]
 
 { #category : #accessing }
 GameOfLifeWorld >> isAlive: aPoint [
-	"comment stating purpose of instance-side method"
-	"scope: class-variables  &  instance-variables"	
 		
 		self assertValidPoint: aPoint.
-		^ (world at: aPoint ifAbsent: [ false ]).
+		^ (world at: aPoint) isMemberOf: GameOfLifeAliveCell.
 ]
 
 { #category : #execution }
@@ -110,12 +108,10 @@ GameOfLifeWorld >> setWidth: aWidth [
 
 { #category : #private }
 GameOfLifeWorld >> updateCell: aCell in: aNewWorld [ 
-
-	| isAlive |
 	
-	isAlive := world at: aCell .
-	isAlive ifTrue: [ self updateLiveCell: aCell in: aNewWorld ]
-			  ifFalse:[ self updateDeadCell: aCell in: aNewWorld ]
+	(self isAlive: aCell)
+		ifTrue: [ self updateLiveCell: aCell in: aNewWorld ]
+		ifFalse:[ self updateDeadCell: aCell in: aNewWorld ]
 ]
 
 { #category : #private }
@@ -125,8 +121,8 @@ GameOfLifeWorld >> updateDeadCell: aCell in: aNewWorld [
 	
 	liveNeighbours := self countLiveNeighbours: aCell.
 	(liveNeighbours = 3)
-		ifTrue: [ aNewWorld at: aCell put: true ]
-		ifFalse: [ aNewWorld at: aCell put: false ]
+		ifTrue: [ aNewWorld at: aCell put: GameOfLifeAliveCell new. ]
+		ifFalse: [ aNewWorld at: aCell put: GameOfLifeDeadCell new. ]
 ]
 
 { #category : #private }
@@ -136,6 +132,6 @@ GameOfLifeWorld >> updateLiveCell: aCell in: aNewWorld [
 	
 	liveNeighbours := self countLiveNeighbours: aCell.
 	(liveNeighbours < 2 | (liveNeighbours > 3))
-		ifTrue: [ aNewWorld at: aCell put: false ]
-		ifFalse: [ aNewWorld at: aCell put: true ]		
+		ifTrue: [ aNewWorld at: aCell put: GameOfLifeDeadCell new. ]
+		ifFalse: [ aNewWorld at: aCell put: GameOfLifeAliveCell new. ]		
 ]
