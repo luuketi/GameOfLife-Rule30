@@ -35,6 +35,18 @@ GameOfLifeWorld >> addPattern: aPattern [
 
 ]
 
+{ #category : #creation }
+GameOfLifeWorld >> addRandomPatterns [
+			
+	world keysDo: [ :k |
+		 ((1 to: 10) atRandom even 
+				ifTrue: [(world at: k ) kill] ifFalse: [(world at: k ) awake] ) ].
+	^ self.
+	
+
+
+]
+
 { #category : #private }
 GameOfLifeWorld >> assertValidPoint: aPoint [
 
@@ -57,7 +69,7 @@ GameOfLifeWorld >> countLiveNeighbours: aCell [
 	
 	points := { (x-1)@(y-1).	(x-1)@y.	(x-1)@(y+1).	 x@(y-1).	 x@(y+1). (x+1)@(y-1). (x+1)@y. (x+1)@(y+1). }.
 	
-	validPoints := points select: [ :p | (p > (0@0)) & (p < (width@height)). ].
+	validPoints := points select: [ :p | (p > (0@0)) & (p <= (width@height)). ].
 	validPoints do: [ :p | (self isAlive: p) ifTrue: [count := count + 1] ].
 	^ count
 	
@@ -96,17 +108,19 @@ GameOfLifeWorld >> isAlive: aPoint [
 GameOfLifeWorld >> moveToNextGeneration [
 
 	self updateNeighbours.
-	world keysDo: [ :k | self updateCell: k ].
+	world keysDo: [ :k | ((neighbours at: k) = 0 & ((world at: k) isAlive not)) ifFalse: [self updateCell: k] ].
 	self showWindow
 ]
 
 { #category : #creation }
 GameOfLifeWorld >> play: aNumberOfSteps [
-			
-	
-[1 to: aNumberOfSteps do: [  :a|
-		self moveToNextGeneration. (Delay forMilliseconds: 50) wait.
-]] fork.
+
+	[ 1 to: aNumberOfSteps 
+		do: [ :a |
+			self moveToNextGeneration. 
+			(Delay forMilliseconds: 250) wait.
+			]
+	] fork.
 
 ]
 
@@ -115,11 +129,11 @@ GameOfLifeWorld >> populateWindow [
 
 	| rowMorph |			
 	
-	1 to: height  do: [ :row | 
+	1 to: height do: [ :row | 
 		rowMorph := Morph new layoutPolicy: RowLayout new; vResizing: #shrinkWrap; color: Color transparent .
-		1 to: width do: [ :col | rowMorph addMorph: (world at: (col@row)) ].
+		width to: 1 by: -1 do: [ :col | rowMorph addMorph: (world at: (col@row)) ].
 		window addRowMorph: rowMorph.
-		 ].
+	].
 	
 ]
 

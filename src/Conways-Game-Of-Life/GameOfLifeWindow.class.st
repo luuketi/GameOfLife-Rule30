@@ -25,16 +25,6 @@ GameOfLifeWindow class >> withHeight: aHeight withWidth: aWidth [
 ]
 
 { #category : #public }
-GameOfLifeWindow >> addCells [
-
-| rowMorph |
-	1 to: height  do: [ :row | 
-		rowMorph := Morph new layoutPolicy: RowLayout new; vResizing: #shrinkWrap; color: Color transparent .
-		1 to: width do: [ :col | rowMorph addMorph: GameOfLifeCell new ].
-		container addMorph: rowMorph ].
-]
-
-{ #category : #public }
 GameOfLifeWindow >> addRowMorph: aRowMorph [
 
 
@@ -45,10 +35,7 @@ GameOfLifeWindow >> addRowMorph: aRowMorph [
 { #category : #private }
 GameOfLifeWindow >> initializes [
 
-	| rowMorph |
-	container := Morph new
-		             layoutPolicy: TableLayout new;
-		             color: Color transparent.
+	container := Morph new layoutPolicy: TableLayout new; color: Color transparent.
 ]
 
 { #category : #private }
@@ -70,5 +57,7 @@ GameOfLifeWindow >> setWidth: aWidth [
 { #category : #public }
 GameOfLifeWindow >> show [
 
+	container position: (-550@30).
 	container openInWorld.
+	
 ]

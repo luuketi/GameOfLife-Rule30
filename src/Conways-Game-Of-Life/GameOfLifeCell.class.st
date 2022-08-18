@@ -14,19 +14,7 @@ GameOfLifeCell class >> new [
 	
 	cell := super new.
 	cell borderStyle: (SimpleBorder width: 0 color: Color transparent). 
-	cell bounds: (Rectangle point: 0@0 point: 10@10).
-	cell isAlive: false.
-	^cell.
-]
-
-{ #category : #initialization }
-GameOfLifeCell class >> new: aColor [
-	
-	|cell|
-	
-	cell := super new.
-	cell borderStyle: (SimpleBorder width: 1 color: Color transparent). 
-	cell bounds: (Rectangle point: 0@0 point: 10@10).
+	cell bounds: (Rectangle point: 0@0 point: 5@5).
 	cell isAlive: false.
 	^cell.
 ]
