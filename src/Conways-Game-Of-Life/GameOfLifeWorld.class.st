@@ -37,32 +37,12 @@ GameOfLifeWorld >> addPattern: aPattern [
 { #category : #creation }
 GameOfLifeWorld >> addRandomPatterns [
 			
-	world keysAndValuesDo: [ :k :cell |
+	world valuesDo: [ :cell |
 		 ((1 to: 10) atRandom even 
 				ifTrue: [ cell kill ] ifFalse: [ cell awake ] ) ].
 	^ self.
 	
 
-
-]
-
-{ #category : #private }
-GameOfLifeWorld >> countLiveNeighbours: aPosition [
-
-	| count x y points validPoints |
-	
-	count := 0.
-	x := aPosition x.
-	y := aPosition y.
-	
-	points := { (x-1)@(y-1).	(x-1)@y.	(x-1)@(y+1).	 x@(y-1).	 x@(y+1). (x+1)@(y-1). (x+1)@y. (x+1)@(y+1). }.
-	
-	validPoints := points select: [ :p | (p > (0@0)) & (p <= (width@height)). ].
-	validPoints do: [ :p | (self isAliveAt: p) ifTrue: [count := count + 1] ].
-	^ count
-	
-	
-	
 
 ]
 
@@ -75,13 +55,32 @@ GameOfLifeWorld >> createWindow [
 
 { #category : #private }
 GameOfLifeWorld >> createWorld [
-	"comment stating purpose of instance-side method"
-	"scope: class-variables  &  instance-variables"	
-	
+
+	| neighbourPositions neighbours |	
+		
 	world := Dictionary new.
-	1 to: width do:
-		[ :w | 1 to: height do:
-			[ :h | world at: w@h put: GameOfLifeCell new. ] ]
+	1 to: width do: [ :w | 1 to: height do: [ :h | world at: w@h put: GameOfLifeCell new. ] ].
+	
+	world keysAndValuesDo: [ :position :cell | 
+		neighbourPositions := self getNeighbourPositions: position.
+		neighbours := (neighbourPositions collect: [ :p | world at: p ]).
+		cell neighbours: neighbours.
+	]	
+
+]
+
+{ #category : #private }
+GameOfLifeWorld >> getNeighbourPositions: aPosition [
+
+	| x y points |	
+		
+	x := aPosition x.
+	y := aPosition y.
+	
+	points := { (x-1)@(y-1).	(x-1)@y.	(x-1)@(y+1).	 x@(y-1).	 x@(y+1). (x+1)@(y-1). (x+1)@y. (x+1)@(y+1). }.
+	
+	^ points select: [ :p | (p > (0@0)) & (p <= (width@height)). ].
+	
 ]
 
 { #category : #accessing }
@@ -95,7 +94,7 @@ GameOfLifeWorld >> moveToNextGeneration [
 
 	self updateNeighbours.
 	world valuesDo: [ :cell | 
-		((cell neighbours = 0) & (cell isAlive not)) ifFalse: [self updateCell: cell] ].
+		((cell numberOfLiveNeighbours = 0) & (cell isAlive not)) ifFalse: [cell updateStatus] ].
 	self showWindow.
 ]
 
@@ -147,27 +146,7 @@ GameOfLifeWorld >> showWindow [
 ]
 
 { #category : #private }
-GameOfLifeWorld >> updateCell: aCell [
-
-	| liveNeighbours |
-
-	liveNeighbours := aCell neighbours.
-	
-	(aCell isAlive)
-		ifTrue: [ 
-			(liveNeighbours < 2 | (liveNeighbours > 3)) ifTrue: [ aCell kill ]. 
-		]
-		ifFalse: [ 
-			(liveNeighbours = 3) ifTrue: [ aCell awake ].
-		]
-]
-
-{ #category : #private }
 GameOfLifeWorld >> updateNeighbours [
-
-	| liveNeighbours |
 	
-	world keysAndValuesDo: [ :position :cell | 
-		liveNeighbours := self countLiveNeighbours: position.
-		cell neighbours: liveNeighbours ]
+	world valuesDo: [ :cell | cell updateLiveNeighboursCount ]
 ]

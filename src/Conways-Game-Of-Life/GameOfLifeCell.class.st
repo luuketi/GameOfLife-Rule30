@@ -3,7 +3,8 @@ Class {
 	#superclass : #BorderedMorph,
 	#instVars : [
 		'isAlive',
-		'neighbours'
+		'neighbours',
+		'aliveNeighbours'
 	],
 	#category : #'Conways-Game-Of-Life'
 }
@@ -17,8 +18,14 @@ GameOfLifeCell class >> new [
 	cell borderStyle: (SimpleBorder width: 0 color: Color transparent). 
 	cell bounds: (Rectangle point: 0@0 point: 5@5).
 	cell isAlive: false.
-	cell neighbours: 0.
+	cell aliveNeighbours: 0.
 	^cell.
+]
+
+{ #category : #public }
+GameOfLifeCell >> aliveNeighbours: aLiveNeighbours [
+
+	aliveNeighbours := aLiveNeighbours
 ]
 
 { #category : #public }
@@ -49,13 +56,28 @@ GameOfLifeCell >> kill [
 ]
 
 { #category : #public }
-GameOfLifeCell >> neighbours [
+GameOfLifeCell >> neighbours: aListOfNeighbours [
 
-	^ neighbours.
+	neighbours := aListOfNeighbours
+]
+
+{ #category : #private }
+GameOfLifeCell >> numberOfLiveNeighbours [
+
+	^ (neighbours select: [ :cell | cell isAlive ]) size.
 ]
 
 { #category : #public }
-GameOfLifeCell >> neighbours: amountOfNeightbours [
+GameOfLifeCell >> updateLiveNeighboursCount [
 
-	neighbours := amountOfNeightbours
+	aliveNeighbours := self numberOfLiveNeighbours.
+]
+
+{ #category : #public }
+GameOfLifeCell >> updateStatus [
+	
+	isAlive
+		ifTrue: [ (aliveNeighbours  < 2 | (aliveNeighbours > 3)) ifTrue: [ self kill ] ]
+		ifFalse: [ (aliveNeighbours = 3) ifTrue: [ self awake ] ]
+		
 ]
