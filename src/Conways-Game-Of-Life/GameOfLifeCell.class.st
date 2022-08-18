@@ -2,7 +2,8 @@ Class {
 	#name : #GameOfLifeCell,
 	#superclass : #BorderedMorph,
 	#instVars : [
-		'isAlive'
+		'isAlive',
+		'neighbours'
 	],
 	#category : #'Conways-Game-Of-Life'
 }
@@ -16,6 +17,7 @@ GameOfLifeCell class >> new [
 	cell borderStyle: (SimpleBorder width: 0 color: Color transparent). 
 	cell bounds: (Rectangle point: 0@0 point: 5@5).
 	cell isAlive: false.
+	cell neighbours: 0.
 	^cell.
 ]
 
@@ -44,4 +46,16 @@ GameOfLifeCell >> isAlive: isAliveBoolean [
 GameOfLifeCell >> kill [
 
 	^ self isAlive: false.
+]
+
+{ #category : #public }
+GameOfLifeCell >> neighbours [
+
+	^ neighbours.
+]
+
+{ #category : #public }
+GameOfLifeCell >> neighbours: amountOfNeightbours [
+
+	neighbours := amountOfNeightbours
 ]

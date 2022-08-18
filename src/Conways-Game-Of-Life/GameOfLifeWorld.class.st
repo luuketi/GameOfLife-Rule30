@@ -5,8 +5,7 @@ Class {
 		'height',
 		'width',
 		'world',
-		'window',
-		'neighbours'
+		'window'
 	],
 	#category : #'Conways-Game-Of-Life'
 }
@@ -38,9 +37,9 @@ GameOfLifeWorld >> addPattern: aPattern [
 { #category : #creation }
 GameOfLifeWorld >> addRandomPatterns [
 			
-	world keysDo: [ :k |
+	world keysAndValuesDo: [ :k :cell |
 		 ((1 to: 10) atRandom even 
-				ifTrue: [(world at: k ) kill] ifFalse: [(world at: k ) awake] ) ].
+				ifTrue: [ cell kill ] ifFalse: [ cell awake ] ) ].
 	^ self.
 	
 
@@ -48,29 +47,18 @@ GameOfLifeWorld >> addRandomPatterns [
 ]
 
 { #category : #private }
-GameOfLifeWorld >> assertValidPoint: aPoint [
-
-	| x y |
-	x := aPoint x.
-	y := aPoint y.
-	
-	(y > height) | (x > width) | (y <= 0) | (x <= 0)
-		ifTrue: [ ^ AssertionFailure  new signal: 'Invalid Point' ]
-]
-
-{ #category : #private }
-GameOfLifeWorld >> countLiveNeighbours: aCell [
+GameOfLifeWorld >> countLiveNeighbours: aPosition [
 
 	| count x y points validPoints |
 	
 	count := 0.
-	x := aCell x.
-	y := aCell y.
+	x := aPosition x.
+	y := aPosition y.
 	
 	points := { (x-1)@(y-1).	(x-1)@y.	(x-1)@(y+1).	 x@(y-1).	 x@(y+1). (x+1)@(y-1). (x+1)@y. (x+1)@(y+1). }.
 	
 	validPoints := points select: [ :p | (p > (0@0)) & (p <= (width@height)). ].
-	validPoints do: [ :p | (self isAlive: p) ifTrue: [count := count + 1] ].
+	validPoints do: [ :p | (self isAliveAt: p) ifTrue: [count := count + 1] ].
 	^ count
 	
 	
@@ -90,7 +78,6 @@ GameOfLifeWorld >> createWorld [
 	"comment stating purpose of instance-side method"
 	"scope: class-variables  &  instance-variables"	
 	
-	neighbours := Dictionary new.
 	world := Dictionary new.
 	1 to: width do:
 		[ :w | 1 to: height do:
@@ -98,18 +85,18 @@ GameOfLifeWorld >> createWorld [
 ]
 
 { #category : #accessing }
-GameOfLifeWorld >> isAlive: aPoint [
+GameOfLifeWorld >> isAliveAt: aPoint [
 		
-		self assertValidPoint: aPoint.
-		^ (world at: aPoint) isAlive.
+		^ (world at: aPoint ifAbsent: [^ AssertionFailure  new signal: 'Invalid Point'] ) isAlive.
 ]
 
 { #category : #execution }
 GameOfLifeWorld >> moveToNextGeneration [
 
 	self updateNeighbours.
-	world keysDo: [ :k | ((neighbours at: k) = 0 & ((world at: k) isAlive not)) ifFalse: [self updateCell: k] ].
-	self showWindow
+	world valuesDo: [ :cell | 
+		((cell neighbours = 0) & (cell isAlive not)) ifFalse: [self updateCell: cell] ].
+	self showWindow.
 ]
 
 { #category : #creation }
@@ -118,7 +105,7 @@ GameOfLifeWorld >> play: aNumberOfSteps [
 	[ 1 to: aNumberOfSteps 
 		do: [ :a |
 			self moveToNextGeneration. 
-			(Delay forMilliseconds: 250) wait.
+"			(Delay forMilliseconds: 100) wait."
 			]
 	] fork.
 
@@ -162,29 +149,17 @@ GameOfLifeWorld >> showWindow [
 { #category : #private }
 GameOfLifeWorld >> updateCell: aCell [
 
-	(self isAlive: aCell)
-		ifTrue: [ self updateLiveCell: aCell ]
-		ifFalse: [ self updateDeadCell: aCell ]
-]
-
-{ #category : #private }
-GameOfLifeWorld >> updateDeadCell: aCell [ 
-
 	| liveNeighbours |
-	
-	liveNeighbours := neighbours at: aCell.
-	(liveNeighbours = 3)
-		ifTrue: [ (world at: aCell) awake. ]
-]
 
-{ #category : #private }
-GameOfLifeWorld >> updateLiveCell: aCell [ 
-
-	| liveNeighbours |
+	liveNeighbours := aCell neighbours.
 	
-	liveNeighbours := neighbours at: aCell.
-	(liveNeighbours < 2 | (liveNeighbours > 3))
-		ifTrue: [ (world at: aCell) kill. ]
+	(aCell isAlive)
+		ifTrue: [ 
+			(liveNeighbours < 2 | (liveNeighbours > 3)) ifTrue: [ aCell kill ]. 
+		]
+		ifFalse: [ 
+			(liveNeighbours = 3) ifTrue: [ aCell awake ].
+		]
 ]
 
 { #category : #private }
@@ -192,7 +167,7 @@ GameOfLifeWorld >> updateNeighbours [
 
 	| liveNeighbours |
 	
-	world keysDo: [ :k | 
-		liveNeighbours := self countLiveNeighbours: k.
-		neighbours at: k put: liveNeighbours ]
+	world keysAndValuesDo: [ :position :cell | 
+		liveNeighbours := self countLiveNeighbours: position.
+		cell neighbours: liveNeighbours ]
 ]
