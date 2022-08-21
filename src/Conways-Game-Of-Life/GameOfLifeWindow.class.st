@@ -4,7 +4,9 @@ Class {
 	#instVars : [
 		'container',
 		'height',
-		'width'
+		'width',
+		'form',
+		'scale'
 	],
 	#classInstVars : [
 		'container'
@@ -25,17 +27,17 @@ GameOfLifeWindow class >> withHeight: aHeight withWidth: aWidth [
 ]
 
 { #category : #public }
-GameOfLifeWindow >> addRowMorph: aRowMorph [
+GameOfLifeWindow >> draw [
 
-
-	container addMorph: aRowMorph
-
+	container changed
 ]
 
 { #category : #private }
 GameOfLifeWindow >> initializes [
 
-	container := Morph new layoutPolicy: TableLayout new; color: Color transparent.
+	scale := 3.
+	container := ((Form extent: width@height depth: 32) magnifyBy: scale) asMorph.
+	form := container form.
 ]
 
 { #category : #private }
@@ -57,7 +59,18 @@ GameOfLifeWindow >> setWidth: aWidth [
 { #category : #public }
 GameOfLifeWindow >> show [
 
-	container position: (-645@30).
-	container openInWorld.
+	container openInWorld
 	
+]
+
+{ #category : #public }
+GameOfLifeWindow >> updateCell: aPoint color: aColor [
+
+	| ix iy |
+	ix := aPoint x -1.
+	iy := aPoint y -1.
+	ix*scale to: ix*scale+(scale-1) do: [ :x |
+		iy*scale to: iy*scale+(scale-1) do: [ :y | 
+			form colorAt: x@y put: aColor.
+			]]
 ]

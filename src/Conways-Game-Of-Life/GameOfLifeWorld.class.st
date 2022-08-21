@@ -18,8 +18,9 @@ GameOfLifeWorld class >> withHeight: aHeight withWidth: aWidth [
 	world := 	self new.	
 	world setHeight: aHeight. 
 	world setWidth: aWidth.
-	world createWorld.
 	world createWindow.
+	world createWorld.
+
 	^world
 	
 ]
@@ -50,8 +51,8 @@ GameOfLifeWorld >> addRandomPatterns [
 GameOfLifeWorld >> addRandomPatterns2 [
 			
 	world valuesDo: [ :cell |
-		 ((1 to: 10) atRandom > 8 
-				ifTrue: [ cell kill ] ifFalse: [ cell awake ] ) ].
+		 ((1 to: 10) atRandom > 9 
+				ifTrue: [ cell awake ] ifFalse: [ cell kill ] ) ].
 	^ self.
 	
 
@@ -59,25 +60,29 @@ GameOfLifeWorld >> addRandomPatterns2 [
 ]
 
 { #category : #private }
+GameOfLifeWorld >> createCells [
+
+	| newPosition newCell |
+	world := Dictionary new.
+	1 to: width do: [ :w | 
+		1 to: height do: [ :h | 
+			newPosition := w @ h.
+			newCell := GameOfLifeCell at: newPosition window: window.
+			world at: newPosition put: newCell ] ]
+]
+
+{ #category : #private }
 GameOfLifeWorld >> createWindow [
 			
 	window := GameOfLifeWindow withHeight: height  withWidth: width.
-	self populateWindow.
+	
 ]
 
 { #category : #private }
 GameOfLifeWorld >> createWorld [
 
-	| neighbourPositions neighbours |	
-		
-	world := Dictionary new.
-	1 to: width do: [ :w | 1 to: height do: [ :h | world at: w@h put: GameOfLifeCell new. ] ].
-	
-	world keysAndValuesDo: [ :position :cell | 
-		neighbourPositions := self getNeighbourPositions: position.
-		neighbours := (neighbourPositions collect: [ :p | world at: p ]).
-		cell neighbours: neighbours.
-	]	
+	self createCells.
+	self linkNeighboursToCells.
 
 ]
 
@@ -101,21 +106,34 @@ GameOfLifeWorld >> isAliveAt: aPoint [
 		^ (world at: aPoint ifAbsent: [^ AssertionFailure  new signal: 'Invalid Point'] ) isAlive.
 ]
 
+{ #category : #private }
+GameOfLifeWorld >> linkNeighboursToCells [
+
+	| neighbourPositions neighbours |
+	world keysAndValuesDo: [ :position :cell | 
+		neighbourPositions := self getNeighbourPositions: position.
+		neighbours := neighbourPositions collect: [ :p | world at: p ].
+		cell neighbours: neighbours ]
+]
+
 { #category : #execution }
 GameOfLifeWorld >> moveToNextGeneration [
 
 	
 	self updateNeighbours.
-	world valuesDo: [ :cell | 
-		((cell numberOfLiveNeighbours = 0) & (cell isAlive not)) ifFalse: [cell updateStatus] ].
-	self showWindow.
+	
+	world keysAndValuesDo: [ :position :cell | 
+		((cell numberOfLiveNeighbours = 0) & (cell isAlive not)) ifFalse: [cell updateStatus.] ].
+
+	window draw.
+
 ]
 
-{ #category : #creation }
+{ #category : #execution }
 GameOfLifeWorld >> play: aNumberOfSteps [
 
 	| time timeSpent timeToWait |
-	
+	self showWindow .
 	[ 1 to: aNumberOfSteps do: 
 		[ :step | 
      		('''' join: {'Running step: '. step} ) record	.
@@ -123,24 +141,11 @@ GameOfLifeWorld >> play: aNumberOfSteps [
 			self moveToNextGeneration.	
 			timeSpent := (DateAndTime now - time) asMilliSeconds.
 			timeSpent record.
-			timeToWait := 500 - timeSpent.
+			timeToWait := 100 - timeSpent.
 			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]
 		]
 	] fork.
  
-]
-
-{ #category : #private }
-GameOfLifeWorld >> populateWindow [ 
-
-	| rowMorph |			
-	
-	1 to: height do: [ :row | 
-		rowMorph := Morph new layoutPolicy: RowLayout new; vResizing: #shrinkWrap; color: Color transparent .
-		width to: 1 by: -1 do: [ :col | rowMorph addMorph: (world at: (col@row)) ].
-		window addRowMorph: rowMorph.
-	].
-	
 ]
 
 { #category : #private }
@@ -159,7 +164,7 @@ GameOfLifeWorld >> setWidth: aWidth [
 	width := aWidth 
 ]
 
-{ #category : #execution }
+{ #category : #private }
 GameOfLifeWorld >> showWindow [
 
 	window show

@@ -1,13 +1,41 @@
 Class {
 	#name : #GameOfLifeCell,
-	#superclass : #BorderedMorph,
+	#superclass : #Object,
 	#instVars : [
 		'isAlive',
 		'neighbours',
-		'aliveNeighbours'
+		'aliveNeighbours',
+		'color',
+		'window',
+		'point'
 	],
 	#category : #'Conways-Game-Of-Life'
 }
+
+{ #category : #initialization }
+GameOfLifeCell class >> at: aPoint [
+	
+	|cell|
+	
+	cell := super new.
+	cell point: aPoint.
+	cell kill.
+	cell aliveNeighbours: 0.
+	^cell.
+]
+
+{ #category : #initialization }
+GameOfLifeCell class >> at: aPoint window: aWindow [
+	
+	|cell|
+	
+	cell := super new.
+	cell point: aPoint.
+	cell window: aWindow .
+	cell kill.
+	cell aliveNeighbours: 0.
+	^cell.
+]
 
 { #category : #initialization }
 GameOfLifeCell class >> new [
@@ -15,8 +43,6 @@ GameOfLifeCell class >> new [
 	|cell|
 	
 	cell := super new.
-	cell borderStyle: (SimpleBorder width: 0 color: Color transparent). 
-	cell bounds: (Rectangle point: 0@0 point: 3@3).
 	cell kill.
 	cell aliveNeighbours: 0.
 	^cell.
@@ -30,10 +56,17 @@ GameOfLifeCell >> aliveNeighbours: aLiveNeighbours [
 
 { #category : #public }
 GameOfLifeCell >> awake [
-"(	 '''' join: { 'Awaking cell' } ) record."
-	self color: 	Color white.
+
+	color := 	Color white.
 	isAlive := true.
+	window updateCell: point color: color.
 	^ self
+]
+
+{ #category : #public }
+GameOfLifeCell >> color [
+
+	^color
 ]
 
 { #category : #public }
@@ -44,9 +77,10 @@ GameOfLifeCell >> isAlive [
 
 { #category : #public }
 GameOfLifeCell >> kill [
-"(	 '''' join: { 'Killing cell' } ) record."
-	self color: 	Color black.
+
+	color := 	Color black.
 	isAlive := false.
+	window updateCell: point color: color.
 	^ self
 ]
 
@@ -63,6 +97,12 @@ GameOfLifeCell >> numberOfLiveNeighbours [
 ]
 
 { #category : #public }
+GameOfLifeCell >> point: aPoint [
+
+	point := aPoint
+]
+
+{ #category : #public }
 GameOfLifeCell >> updateLiveNeighboursCount [
 
 	aliveNeighbours := self numberOfLiveNeighbours.
@@ -75,4 +115,10 @@ GameOfLifeCell >> updateStatus [
 		ifTrue: [ (aliveNeighbours  < 2 | (aliveNeighbours > 3)) ifTrue: [ self kill ] ]
 		ifFalse: [ (aliveNeighbours = 3) ifTrue: [ self awake ] ]
 		
+]
+
+{ #category : #private }
+GameOfLifeCell >> window: aWindow [
+
+	window := aWindow.
 ]
