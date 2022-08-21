@@ -46,6 +46,18 @@ GameOfLifeWorld >> addRandomPatterns [
 
 ]
 
+{ #category : #creation }
+GameOfLifeWorld >> addRandomPatterns2 [
+			
+	world valuesDo: [ :cell |
+		 ((1 to: 10) atRandom > 8 
+				ifTrue: [ cell kill ] ifFalse: [ cell awake ] ) ].
+	^ self.
+	
+
+
+]
+
 { #category : #private }
 GameOfLifeWorld >> createWindow [
 			
@@ -92,6 +104,7 @@ GameOfLifeWorld >> isAliveAt: aPoint [
 { #category : #execution }
 GameOfLifeWorld >> moveToNextGeneration [
 
+	
 	self updateNeighbours.
 	world valuesDo: [ :cell | 
 		((cell numberOfLiveNeighbours = 0) & (cell isAlive not)) ifFalse: [cell updateStatus] ].
@@ -101,13 +114,20 @@ GameOfLifeWorld >> moveToNextGeneration [
 { #category : #creation }
 GameOfLifeWorld >> play: aNumberOfSteps [
 
-	[ 1 to: aNumberOfSteps 
-		do: [ :a |
-			self moveToNextGeneration. 
-"			(Delay forMilliseconds: 100) wait."
-			]
+	| time timeSpent timeToWait |
+	
+	[ 1 to: aNumberOfSteps do: 
+		[ :step | 
+     		('''' join: {'Running step: '. step} ) record	.
+			time := DateAndTime now.
+			self moveToNextGeneration.	
+			timeSpent := (DateAndTime now - time) asMilliSeconds.
+			timeSpent record.
+			timeToWait := 500 - timeSpent.
+			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]
+		]
 	] fork.
-
+ 
 ]
 
 { #category : #private }

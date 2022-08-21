@@ -57,7 +57,7 @@ GameOfLifeWindow >> setWidth: aWidth [
 { #category : #public }
 GameOfLifeWindow >> show [
 
-	container position: (-550@30).
+	container position: (-645@30).
 	container openInWorld.
 	
 ]

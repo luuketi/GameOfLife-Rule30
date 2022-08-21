@@ -16,8 +16,8 @@ GameOfLifeCell class >> new [
 	
 	cell := super new.
 	cell borderStyle: (SimpleBorder width: 0 color: Color transparent). 
-	cell bounds: (Rectangle point: 0@0 point: 5@5).
-	cell isAlive: false.
+	cell bounds: (Rectangle point: 0@0 point: 3@3).
+	cell kill.
 	cell aliveNeighbours: 0.
 	^cell.
 ]
@@ -30,8 +30,10 @@ GameOfLifeCell >> aliveNeighbours: aLiveNeighbours [
 
 { #category : #public }
 GameOfLifeCell >> awake [
-
-	^ self isAlive: true.
+"(	 '''' join: { 'Awaking cell' } ) record."
+	self color: 	Color white.
+	isAlive := true.
+	^ self
 ]
 
 { #category : #public }
@@ -41,18 +43,11 @@ GameOfLifeCell >> isAlive [
 ]
 
 { #category : #public }
-GameOfLifeCell >> isAlive: isAliveBoolean [
-
-
-	self color: 	(isAliveBoolean ifTrue: [Color white] ifFalse: [Color black]).
-	isAlive := isAliveBoolean.
-	^ self
-]
-
-{ #category : #public }
 GameOfLifeCell >> kill [
-
-	^ self isAlive: false.
+"(	 '''' join: { 'Killing cell' } ) record."
+	self color: 	Color black.
+	isAlive := false.
+	^ self
 ]
 
 { #category : #public }
