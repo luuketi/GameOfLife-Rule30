@@ -35,7 +35,7 @@ GameOfLifeWindow >> draw [
 { #category : #private }
 GameOfLifeWindow >> initializes [
 
-	scale := 3.
+	scale := 2.
 	container := ((Form extent: width@height depth: 32) magnifyBy: scale) asMorph.
 	form := container form.
 ]

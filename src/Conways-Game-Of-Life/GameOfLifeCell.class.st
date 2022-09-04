@@ -32,6 +32,7 @@ GameOfLifeCell class >> at: aPoint window: aWindow [
 	cell := super new.
 	cell point: aPoint.
 	cell window: aWindow .
+	cell isAlive: false.
 	cell kill.
 	cell aliveNeighbours: 0.
 	^cell.
@@ -57,9 +58,11 @@ GameOfLifeCell >> aliveNeighbours: aLiveNeighbours [
 { #category : #public }
 GameOfLifeCell >> awake [
 
-	color := 	Color white.
-	isAlive := true.
-	window updateCell: point color: color.
+	isAlive ifFalse: [ 
+		color := 	Color white.
+		isAlive := true.
+		window updateCell: point color: color.
+	].
 	^ self
 ]
 
@@ -75,12 +78,20 @@ GameOfLifeCell >> isAlive [
 	^ isAlive 
 ]
 
+{ #category : #private }
+GameOfLifeCell >> isAlive: aStatus [
+
+	isAlive := aStatus. 
+]
+
 { #category : #public }
 GameOfLifeCell >> kill [
 
-	color := 	Color black.
-	isAlive := false.
-	window updateCell: point color: color.
+	isAlive ifTrue: [ 
+		color := 	Color black.
+		isAlive := false.
+		window updateCell: point color: color.
+	 ].
 	^ self
 ]
 
