@@ -173,7 +173,31 @@ Rule30World >> play: aNumberOfSteps [
 		
 			timeSpent := (DateAndTime now - time) asMilliSeconds.
 			timeSpent record.
-			timeToWait := 150 - timeSpent.
+			timeToWait := 100 - timeSpent.
+			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]			
+		]
+	] fork.
+ 
+	
+]
+
+{ #category : #public }
+Rule30World >> play: aNumberOfSteps timeToWait: millisecondsToWait [
+
+	| time timeSpent timeToWait |
+	
+	window show.
+
+	[ 1 to: aNumberOfSteps do: 
+		[ :step | 
+			time := DateAndTime now.     	
+			self rotatePositions.
+			self computeLastStep. 
+			window draw.
+		
+			timeSpent := (DateAndTime now - time) asMilliSeconds.
+			timeSpent record.
+			timeToWait := millisecondsToWait - timeSpent.
 			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]			
 		]
 	] fork.

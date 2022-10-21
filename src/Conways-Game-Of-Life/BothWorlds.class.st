@@ -51,6 +51,28 @@ BothWorlds >> play: aNumberOfSteps [
 	] fork.
 ]
 
+{ #category : #execution }
+BothWorlds >> play: aNumberOfSteps timeToWait: millisecondsToWait [
+
+	| time timeSpent timeToWait |
+
+	[ 1 to: aNumberOfSteps do: 
+		[ :step | 
+
+			time := DateAndTime now.
+
+			gameOfLife play.
+			rule30 play.
+			gameOfLife addPattern: (rule30 topPositionsAsPattern).
+			
+			timeSpent := (DateAndTime now - time) asMilliSeconds.
+			timeSpent record.
+			timeToWait := millisecondsToWait - timeSpent.
+			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]
+		]
+	] fork.
+]
+
 { #category : #private }
 BothWorlds >> setHeight: aHeight [
 	"comment stating purpose of instance-side method"

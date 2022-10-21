@@ -178,6 +178,25 @@ GameOfLifeWorld >> play: aNumberOfSteps [
  
 ]
 
+{ #category : #execution }
+GameOfLifeWorld >> play: aNumberOfSteps timeToWait: millisecondsToWait [
+
+	| time timeSpent timeToWait |
+	self showWindow .
+	[ 1 to: aNumberOfSteps do: 
+		[ :step | 
+     		('''' join: {'Running step: '. step} ) record	.
+			time := DateAndTime now.
+			self moveToNextGeneration.	
+			timeSpent := (DateAndTime now - time) asMilliSeconds.
+			timeSpent record.
+			timeToWait := millisecondsToWait - timeSpent.
+			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]
+		]
+	] fork.
+ 
+]
+
 { #category : #private }
 GameOfLifeWorld >> setHeight: aHeight [
 	"comment stating purpose of instance-side method"
