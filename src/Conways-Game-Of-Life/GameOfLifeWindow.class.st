@@ -6,7 +6,8 @@ Class {
 		'height',
 		'width',
 		'form',
-		'scale'
+		'scale',
+		'position'
 	],
 	#classInstVars : [
 		'container'
@@ -26,6 +27,19 @@ GameOfLifeWindow class >> withHeight: aHeight withWidth: aWidth [
 	^world
 ]
 
+{ #category : #'instance creation' }
+GameOfLifeWindow class >> withHeight: aHeight withWidth: aWidth at: aPoint [
+	"comment stating purpose of instance-side method"
+	"scope: class-variables  &  instance-variables"	
+	| world |
+	world := 	self new.	
+	world setHeight: aHeight. 
+	world setWidth: aWidth.
+	world setPosition: aPoint.
+	world initializes.
+	^world
+]
+
 { #category : #public }
 GameOfLifeWindow >> draw [
 
@@ -36,7 +50,8 @@ GameOfLifeWindow >> draw [
 GameOfLifeWindow >> initializes [
 
 	scale := 2.
-	container := ((Form extent: width@height depth: 32) magnifyBy: scale) asMorph.
+	container := ((Form extent: width@height depth: 16) magnifyBy: scale) asMorph.
+	container position: position.
 	form := container form.
 ]
 
@@ -46,6 +61,14 @@ GameOfLifeWindow >> setHeight: aHeight [
 	"scope: class-variables  &  instance-variables"	
 			
 	height := aHeight 
+]
+
+{ #category : #private }
+GameOfLifeWindow >> setPosition: aPoint [
+	"comment stating purpose of instance-side method"
+	"scope: class-variables  &  instance-variables"	
+			
+	position := aPoint
 ]
 
 { #category : #private }

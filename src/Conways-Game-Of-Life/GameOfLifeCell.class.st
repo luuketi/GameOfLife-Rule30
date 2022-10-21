@@ -32,7 +32,7 @@ GameOfLifeCell class >> at: aPoint window: aWindow [
 	cell := super new.
 	cell point: aPoint.
 	cell window: aWindow .
-	cell isAlive: false.
+	cell isAlive: true.
 	cell kill.
 	cell aliveNeighbours: 0.
 	^cell.

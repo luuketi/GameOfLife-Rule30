@@ -25,6 +25,21 @@ GameOfLifeWorld class >> withHeight: aHeight withWidth: aWidth [
 	
 ]
 
+{ #category : #'instance creation' }
+GameOfLifeWorld class >> withHeight: aHeight withWidth: aWidth at: aPoint [
+	"comment stating purpose of instance-side method"
+	"scope: class-variables  &  instance-variables"	
+	| world |
+	world := 	self new.	
+	world setHeight: aHeight. 
+	world setWidth: aWidth.
+	world createWindowAt: aPoint.
+	world createWorld.
+
+	^world
+	
+]
+
 { #category : #creation }
 GameOfLifeWorld >> addPattern: aPattern [
 			
@@ -79,6 +94,13 @@ GameOfLifeWorld >> createWindow [
 ]
 
 { #category : #private }
+GameOfLifeWorld >> createWindowAt: aPoint [
+			
+	window := GameOfLifeWindow withHeight: height  withWidth: width at: aPoint.
+	
+]
+
+{ #category : #private }
 GameOfLifeWorld >> createWorld [
 
 	self createCells.
@@ -127,6 +149,14 @@ GameOfLifeWorld >> moveToNextGeneration [
 
 	window draw.
 
+]
+
+{ #category : #execution }
+GameOfLifeWorld >> play [
+
+	self showWindow .
+	self moveToNextGeneration.	
+	
 ]
 
 { #category : #execution }

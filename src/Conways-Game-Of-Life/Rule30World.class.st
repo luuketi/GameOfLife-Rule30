@@ -26,6 +26,32 @@ Rule30World class >> withHeight: aHeight withWidth: aWidth [
 	^ w.
 ]
 
+{ #category : #'instance creation' }
+Rule30World class >> withHeight: aHeight withWidth: aWidth At: aPoint [
+
+	| w |
+	
+	w := self new.
+	w height: aHeight.
+	w width: aWidth.
+	w createWindowAt: aPoint.
+	w createWorld.
+	^ w.
+]
+
+{ #category : #'instance creation' }
+Rule30World class >> withHeight: aHeight withWidth: aWidth at: aPoint [
+
+	| w |
+	
+	w := self new.
+	w height: aHeight.
+	w width: aWidth.
+	w createWindowAt: aPoint.
+	w createWorld.
+	^ w.
+]
+
 { #category : #private }
 Rule30World >> at: x at: y [
 
@@ -80,10 +106,16 @@ Rule30World >> createWindow [
 ]
 
 { #category : #private }
+Rule30World >> createWindowAt: aPoint [
+			
+	window := GameOfLifeWindow withHeight: height  withWidth: width at: aPoint.
+]
+
+{ #category : #private }
 Rule30World >> createWorld [
 	
 	wholeLastRow := Array new: width withAll:false.
-	deadCell := GameOfLifeCell at: 1@1 window: (GameOfLifeWindow withHeight: 1  withWidth: 1).
+	deadCell := GameOfLifeCell at: 1@1 window: (GameOfLifeWindow withHeight: 1  withWidth: 1 at: (0@0)).
 	world := Dictionary new.
 	self initializeWorld.
 ]
@@ -109,6 +141,23 @@ Rule30World >> initializeWorld [
 ]
 
 { #category : #public }
+Rule30World >> play [
+
+	
+	window show.
+
+	 
+	self rotatePositions.
+	self computeLastStep. 
+	window draw.
+			
+			
+	
+ 
+	
+]
+
+{ #category : #public }
 Rule30World >> play: aNumberOfSteps [
 
 	| time timeSpent timeToWait |
@@ -117,18 +166,15 @@ Rule30World >> play: aNumberOfSteps [
 
 	[ 1 to: aNumberOfSteps do: 
 		[ :step | 
-	time := DateAndTime now.     	
-	self rotatePositions.
-	self computeLastStep. 
-	window draw.
-			
-
+			time := DateAndTime now.     	
+			self rotatePositions.
+			self computeLastStep. 
+			window draw.
+		
 			timeSpent := (DateAndTime now - time) asMilliSeconds.
 			timeSpent record.
 			timeToWait := 150 - timeSpent.
-			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]		
-			
-			
+			timeToWait > 0 ifTrue: [ (Delay forMilliseconds: timeToWait) wait. ]			
 		]
 	] fork.
  
@@ -156,6 +202,15 @@ Rule30World >> rotatePositions [
 Rule30World >> topPositions [
 
 	^ world at: 1 .
+]
+
+{ #category : #public }
+Rule30World >> topPositionsAsPattern [
+
+	| pattern |
+	
+	pattern := LastRowPattern at: 1@height with: (world at:1). 
+	^pattern.
 ]
 
 { #category : #private }
